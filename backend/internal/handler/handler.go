@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/keeq0/dokkee/backend/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/keeq0/dokkee/backend/internal/service"
 )
 
 type Handler struct {

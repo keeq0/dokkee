@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/keeq0/dokkee/backend/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/keeq0/dokkee/backend/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

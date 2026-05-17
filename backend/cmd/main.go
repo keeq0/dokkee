@@ -4,11 +4,11 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/keeq0/dokkee/backend/internal/handler"
 	"github.com/keeq0/dokkee/backend/internal/repository"
 	"github.com/keeq0/dokkee/backend/internal/service"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"

@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/gin-gonic/gin"
+	dokkee "github.com/keeq0/dokkee/backend"
 )
 
 func (h *Handler) getProfile(c *gin.Context) {

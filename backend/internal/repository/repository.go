@@ -3,8 +3,8 @@ package repository
 import (
 	"mime/multipart"
 
-	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/jmoiron/sqlx"
+	dokkee "github.com/keeq0/dokkee/backend"
 )
 
 type Authorization interface {

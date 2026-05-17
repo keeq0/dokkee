@@ -8,9 +8,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/google/uuid"
 	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/keeq0/dokkee/backend/internal/repository"
-	"github.com/google/uuid"
 )
 
 const (

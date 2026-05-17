@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/keeq0/dokkee/backend/internal/repository"
-	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 

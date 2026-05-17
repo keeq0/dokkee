@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/jmoiron/sqlx"
+	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/stretchr/testify/assert"
 )
 

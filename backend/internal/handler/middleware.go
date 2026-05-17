@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/keeq0/dokkee/backend/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/keeq0/dokkee/backend/internal/service"
 )
 
 const userCtx = "user_id"
