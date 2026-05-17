@@ -24,7 +24,7 @@ func (h *Handler) jwtMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		userID, err := h.services.Authorization.ParseToken(parts[1])
+		userID, _, err := h.services.Authorization.ParseToken(parts[1])
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return

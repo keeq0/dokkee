@@ -10,8 +10,10 @@ import (
 type Authorization interface {
 	CreateUser(user dokkee.User) (int, error)
 	GetUser(username string) (dokkee.User, error)
+	GetUserByID(userID int) (dokkee.User, error)
 	GetProfile(userID int) (dokkee.User, error)
 	UpdateProfile(userID int, input dokkee.UpdateProfileInput) error
+	UpdateRole(userID int, role string) error
 }
 
 type Document interface {

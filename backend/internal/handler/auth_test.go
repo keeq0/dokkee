@@ -29,9 +29,14 @@ func (m *MockAuthorizationService) GenerateToken(username, password string) (str
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockAuthorizationService) ParseToken(token string) (int, error) {
+func (m *MockAuthorizationService) ParseToken(token string) (int, string, error) {
 	args := m.Called(token)
-	return args.Int(0), args.Error(1)
+	return args.Int(0), args.String(1), args.Error(2)
+}
+
+func (m *MockAuthorizationService) GetUserByID(userID int) (dokkee.User, error) {
+	args := m.Called(userID)
+	return args.Get(0).(dokkee.User), args.Error(1)
 }
 
 func (m *MockAuthorizationService) GetProfile(userID int) (dokkee.User, error) {
@@ -41,6 +46,11 @@ func (m *MockAuthorizationService) GetProfile(userID int) (dokkee.User, error) {
 
 func (m *MockAuthorizationService) UpdateProfile(userID int, input dokkee.UpdateProfileInput) error {
 	args := m.Called(userID, input)
+	return args.Error(0)
+}
+
+func (m *MockAuthorizationService) UpsertSuperAdmin(username, password string) error {
+	args := m.Called(username, password)
 	return args.Error(0)
 }
 

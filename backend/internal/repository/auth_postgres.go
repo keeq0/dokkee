@@ -59,7 +59,7 @@ func (r *AuthPostgres) CreateUser(user dokkee.User) (int, error) {
 
 func (r *AuthPostgres) GetUser(username string) (dokkee.User, error) {
 	var user dokkee.User
-	query := fmt.Sprintf(`SELECT id, password_hash AS password FROM %s WHERE username = $1`, authCredentialsTable)
+	query := fmt.Sprintf(`SELECT id, username, password_hash AS password, role FROM %s WHERE username = $1`, authCredentialsTable)
 	err := r.db.Get(&user, query, username)
 	return user, err
 }
@@ -116,4 +116,20 @@ func (r *AuthPostgres) UpdateProfile(userID int, input dokkee.UpdateProfileInput
 	query := fmt.Sprintf(`UPDATE %s SET %s WHERE user_id = $%d`, userProfilesTable, setClause, argIdx)
 	_, err := r.db.Exec(query, args...)
 	return err
+}
+
+func (r *AuthPostgres) GetUserByID(userID int) (dokkee.User, error) {
+	var user dokkee.User
+	query := fmt.Sprintf(`SELECT id, username, role FROM %s WHERE id = $1`, authCredentialsTable)
+	err := r.db.Get(&user, query, userID)
+	return user, err
+}
+
+func (r *AuthPostgres) UpdateRole(userID int, role string) error {
+	query := fmt.Sprintf(`UPDATE %s SET role = $1, updated_at = NOW() WHERE id = $2`, authCredentialsTable)
+	_, err := r.db.Exec(query, role, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update role: %w", err)
+	}
+	return nil
 }

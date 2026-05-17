@@ -31,7 +31,7 @@ func TestJwtMiddleware_ValidToken(t *testing.T) {
 	}
 
 	token := "valid.token"
-	mockAuth.On("ParseToken", token).Return(1, nil)
+	mockAuth.On("ParseToken", token).Return(1, "user", nil)
 
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -92,7 +92,7 @@ func TestJwtMiddleware_InvalidToken(t *testing.T) {
 	}
 
 	token := "invalid.token"
-	mockAuth.On("ParseToken", token).Return(0, assert.AnError)
+	mockAuth.On("ParseToken", token).Return(0, "", assert.AnError)
 
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set("Authorization", "Bearer "+token)

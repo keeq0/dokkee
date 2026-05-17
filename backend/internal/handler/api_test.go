@@ -178,7 +178,7 @@ func TestAPI_UploadDocument_Success(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockDoc.On("Upload", 1, mock.Anything, mock.Anything).Return(100, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -208,7 +208,7 @@ func TestAPI_UploadDocument_InvalidFileType(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockDoc.On("Upload", 1, mock.Anything, mock.Anything).Return(0, errors.New("unsupported file type"))
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -246,7 +246,7 @@ func TestAPI_UploadDocument_NoFile(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
 	router := setupRouterWithMocks(handler)
@@ -270,7 +270,7 @@ func TestAPI_ListDocuments_Success(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	docs := []dokkee.Document{{Id: 1, OriginalName: "doc1.pdf"}, {Id: 2, OriginalName: "doc2.pdf"}}
 	mockDoc.On("List", 1, "").Return(docs, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -299,7 +299,7 @@ func TestAPI_ListDocuments_WithStatus(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	docs := []dokkee.Document{{Id: 1, Status: "completed"}}
 	mockDoc.On("List", 1, "completed").Return(docs, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -325,7 +325,7 @@ func TestAPI_ListDocuments_ServiceError(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockDoc.On("List", 1, "").Return([]dokkee.Document{}, errors.New("database error"))
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -350,7 +350,7 @@ func TestAPI_GetDocument_Success(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	doc := dokkee.Document{Id: 5, OriginalName: "test.pdf"}
 	mockDoc.On("GetByID", 5, 1).Return(doc, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -376,7 +376,7 @@ func TestAPI_GetDocument_NotFound(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockDoc.On("GetByID", 99, 1).Return(dokkee.Document{}, errors.New("not found"))
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -399,7 +399,7 @@ func TestAPI_GetDocument_InvalidID(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
 	router := setupRouterWithMocks(handler)
@@ -427,7 +427,7 @@ func TestAPI_GetResult_Success(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	doc := dokkee.Document{Id: 10, Status: "completed"}
 	mockDoc.On("GetByID", 10, 1).Return(doc, nil)
 	result := dokkee.AnalysisResult{DocumentID: 10, ResultJSON: []byte(`{"risk":"low"}`)}
@@ -455,7 +455,7 @@ func TestAPI_GetResult_Processing(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	doc := dokkee.Document{Id: 10, Status: "processing"}
 	mockDoc.On("GetByID", 10, 1).Return(doc, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -484,7 +484,7 @@ func TestAPI_GetResult_Failed(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	doc := dokkee.Document{Id: 10, Status: "failed", ErrorMsg: "analysis error"}
 	mockDoc.On("GetByID", 10, 1).Return(doc, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -512,7 +512,7 @@ func TestAPI_GetResult_InvalidID(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
 	router := setupRouterWithMocks(handler)
@@ -536,7 +536,7 @@ func TestAPI_GetProfile_Success(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	user := dokkee.User{Id: 1, Username: "testuser", FirstName: "Test"}
 	mockAuth.On("GetProfile", 1).Return(user, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -571,7 +571,7 @@ func TestAPI_UpdateProfile_Success(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAuth.On("UpdateProfile", 1, mock.Anything).Return(nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -597,7 +597,7 @@ func TestAPI_UpdateProfile_InvalidJSON(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
 	router := setupRouterWithMocks(handler)
@@ -620,7 +620,7 @@ func TestAPI_UpdateProfile_EmptyBody(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAuth.On("UpdateProfile", 1, mock.Anything).Return(nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -651,7 +651,7 @@ func TestAPI_JwtMiddleware_InvalidToken(t *testing.T) {
 	mockAuth := new(MockAuthorizationService)
 	handler := &Handler{services: &service.Service{Authorization: mockAuth}}
 
-	mockAuth.On("ParseToken", "invalid").Return(0, errors.New("token error"))
+	mockAuth.On("ParseToken", "invalid").Return(0, "", errors.New("token error"))
 
 	router := setupRouterWithMocks(handler)
 	req, _ := http.NewRequest(http.MethodGet, "/api/documents", nil)
@@ -697,7 +697,7 @@ func TestAPI_UploadDocument_TooLarge(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockDoc.On("Upload", 1, mock.Anything, mock.Anything).Return(0, errors.New("file too large: max 10 MB"))
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -724,7 +724,7 @@ func TestAPI_GetDocument_WrongUser(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "token1").Return(1, nil)
+	mockAuth.On("ParseToken", "token1").Return(1, "user", nil)
 	mockDoc.On("GetByID", 5, 1).Return(dokkee.Document{}, errors.New("document not found"))
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -747,7 +747,7 @@ func TestAPI_UpdateProfile_PartialUpdate(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAuth.On("UpdateProfile", 1, mock.MatchedBy(func(input dokkee.UpdateProfileInput) bool {
 		return input.FirstName != nil && *input.FirstName == "JustName" && input.LastName == nil
 	})).Return(nil)
@@ -777,7 +777,7 @@ func TestAPI_GetResult_Queued(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	doc := dokkee.Document{Id: 10, Status: "queued"}
 	mockDoc.On("GetByID", 10, 1).Return(doc, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
@@ -806,7 +806,7 @@ func TestAPI_UploadDocument_UnsupportedMimeType(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockDoc.On("Upload", 1, mock.Anything, mock.Anything).Return(0, errors.New("unsupported file type"))
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
@@ -834,7 +834,7 @@ func TestAPI_GetResult_NotFound(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	doc := dokkee.Document{Id: 10, Status: "completed"}
 	mockDoc.On("GetByID", 10, 1).Return(doc, nil)
 	mockResult.On("GetByDocumentID", 10).Return(dokkee.AnalysisResult{}, errors.New("result not found"))
@@ -859,7 +859,7 @@ func TestAPI_UpdateProfile_NothingToUpdate(t *testing.T) {
 		},
 	}
 
-	mockAuth.On("ParseToken", "valid-token").Return(1, nil)
+	mockAuth.On("ParseToken", "valid-token").Return(1, "user", nil)
 	mockAuth.On("UpdateProfile", 1, mock.Anything).Return(nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
