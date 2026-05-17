@@ -65,10 +65,10 @@ test-e2e: ## Прогнать e2e-тесты фронта (Playwright). Стек
 
 lint: lint-backend lint-frontend ## Прогнать линтеры обеих частей
 
-lint-backend:
+lint-backend: ## Линтер бэка: go vet + gofmt
 	cd backend && go vet ./... && gofmt -l . | (! grep .)
 
-lint-frontend:
+lint-frontend: ## Линтер фронта: npm run lint
 	cd frontend && npm run lint
 
 lint-fix: ## Автофиксы линтеров
