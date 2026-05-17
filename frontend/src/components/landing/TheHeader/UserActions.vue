@@ -1,7 +1,7 @@
 <template>
     <div class="user-actions">
         <p class="user-actions__language">RU</p>
-        <button class="user-actions__button">Войти</button>
+        <router-link to="/login" class="user-actions__button">Войти</router-link>
     </div>
 </template>
 <script>
@@ -30,6 +30,10 @@ export default {
     }
 
     .user-actions__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
         width: 150px;
         height: 40px;
         font-size: 16px;
