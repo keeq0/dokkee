@@ -51,6 +51,25 @@ func extractToken(c *gin.Context) string {
 	return parts[1]
 }
 
+func (h *Handler) requireRole(allowed ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, ok := getUserRole(c)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user role not in context"})
+			return
+		}
+
+		for _, a := range allowed {
+			if role == a {
+				c.Next()
+				return
+			}
+		}
+
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden: role not allowed"})
+	}
+}
+
 func (h *Handler) auditMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
