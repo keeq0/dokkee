@@ -5,6 +5,7 @@ module.exports = defineConfig({
   publicPath: '/',
   devServer: {
     allowedHosts: 'all',
+    historyApiFallback: true,
     client: {
       webSocketURL: 'auto://0.0.0.0:0/ws'
     }

@@ -1,17 +1,10 @@
 <template>
-  <div class="app-wrapper">
-    <ServicePage />
-  </div>
+  <router-view />
 </template>
 
 <script>
-import ServicePage from './views/ServicePage.vue';
-
 export default {
-  name: 'App',
-  components: {
-    ServicePage
-  }
+  name: 'App'
 }
 </script>
 
