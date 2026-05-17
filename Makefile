@@ -18,7 +18,7 @@ endif
         backend-shell frontend-shell
 
 help: ## Показать это сообщение
-	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*?##' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # ------------------------------------------------------------------
 # Compose lifecycle
@@ -102,8 +102,8 @@ seed: ## Seed суперадмина (реализация в PR-3)
 # Shells
 # ------------------------------------------------------------------
 
-backend-shell:
+backend-shell: ## Открыть shell внутри backend-контейнера
 	$(COMPOSE) exec backend sh
 
-frontend-shell:
+frontend-shell: ## Открыть shell внутри frontend-контейнера
 	$(COMPOSE) exec frontend sh
