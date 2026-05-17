@@ -13,6 +13,7 @@ import (
 	"github.com/keeq0/dokkee/backend/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type MockAuthorizationService struct {
@@ -67,15 +68,26 @@ func TestHandler_signUp(t *testing.T) {
 	}
 
 	user := dokkee.User{
-		Username:  "testuser",
+		Username:  "alice",
 		Password:  "password",
-		FirstName: "Test",
-		LastName:  "User",
-		Email:     "test@example.com",
+		FirstName: "Alice",
+		LastName:  "Smith",
+		Email:     "alice@example.com",
+		Phone:     "+1234567890",
+	}
+
+	returnedUser := dokkee.User{
+		Id:        1,
+		Username:  "alice",
+		FirstName: "Alice",
+		LastName:  "Smith",
+		Email:     "alice@example.com",
 		Phone:     "+1234567890",
 	}
 
 	mockService.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(1, nil)
+	mockService.On("GenerateToken", user.Username, user.Password).Return("tok123", nil)
+	mockService.On("GetUserByID", 1).Return(returnedUser, nil)
 
 	body, _ := json.Marshal(user)
 	req, _ := http.NewRequest(http.MethodPost, "/auth/sign-up", bytes.NewBuffer(body))
@@ -87,9 +99,17 @@ func TestHandler_signUp(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, float64(1), response["id"])
+	assert.Contains(t, w.Body.String(), `"user":`)
+	assert.Contains(t, w.Body.String(), `"username":"alice"`)
+	assert.NotContains(t, w.Body.String(), `"password"`)
+
+	cookies := w.Result().Cookies()
+	require.Len(t, cookies, 1)
+	assert.Equal(t, cookieName, cookies[0].Name)
+	assert.True(t, cookies[0].HttpOnly)
+	assert.Equal(t, http.SameSiteLaxMode, cookies[0].SameSite)
+	assert.NotEmpty(t, cookies[0].Value)
+
 	mockService.AssertExpectations(t)
 }
 
@@ -120,9 +140,15 @@ func TestHandler_signIn(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, "token123", response["token"])
+	assert.Contains(t, w.Body.String(), `"ok":true`)
+
+	cookies := w.Result().Cookies()
+	require.Len(t, cookies, 1)
+	assert.Equal(t, cookieName, cookies[0].Name)
+	assert.True(t, cookies[0].HttpOnly)
+	assert.Equal(t, http.SameSiteLaxMode, cookies[0].SameSite)
+	assert.NotEmpty(t, cookies[0].Value)
+
 	mockService.AssertExpectations(t)
 }
 

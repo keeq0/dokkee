@@ -55,7 +55,17 @@ func TestAPI_SignUp_Success(t *testing.T) {
 		Email:     "api@test.com",
 		Phone:     "+79991112299",
 	}
+	returnedUser := dokkee.User{
+		Id:        42,
+		Username:  "apiuser",
+		FirstName: "API",
+		LastName:  "User",
+		Email:     "api@test.com",
+		Phone:     "+79991112299",
+	}
 	mockAuth.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(42, nil)
+	mockAuth.On("GenerateToken", user.Username, user.Password).Return("tok-api", nil)
+	mockAuth.On("GetUserByID", 42).Return(returnedUser, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
 	router := setupRouterWithMocks(handler)
@@ -66,9 +76,9 @@ func TestAPI_SignUp_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var resp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &resp)
-	assert.Equal(t, float64(42), resp["id"])
+	assert.Contains(t, w.Body.String(), `"user":`)
+	assert.Contains(t, w.Body.String(), `"username":"apiuser"`)
+	assert.NotContains(t, w.Body.String(), `"password"`)
 	mockAuth.AssertExpectations(t)
 }
 
@@ -121,9 +131,7 @@ func TestAPI_SignIn_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var resp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &resp)
-	assert.Equal(t, "valid-token", resp["token"])
+	assert.Contains(t, w.Body.String(), `"ok":true`)
 	mockAuth.AssertExpectations(t)
 }
 
