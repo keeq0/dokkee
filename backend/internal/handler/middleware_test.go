@@ -45,6 +45,9 @@ func TestJwtMiddleware_ValidToken(t *testing.T) {
 	userID, exists := c.Get("user_id")
 	assert.True(t, exists)
 	assert.Equal(t, 1, userID)
+	role, roleExists := c.Get("user_role")
+	assert.True(t, roleExists)
+	assert.Equal(t, "user", role)
 	mockAuth.AssertExpectations(t)
 }
 
@@ -61,7 +64,7 @@ func TestJwtMiddleware_MissingHeader(t *testing.T) {
 	handler.jwtMiddleware()(c)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Contains(t, w.Body.String(), "authorization header is empty")
+	assert.Contains(t, w.Body.String(), "no auth token")
 }
 
 func TestJwtMiddleware_WrongFormat(t *testing.T) {
@@ -78,7 +81,7 @@ func TestJwtMiddleware_WrongFormat(t *testing.T) {
 	handler.jwtMiddleware()(c)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Contains(t, w.Body.String(), "invalid authorization header format")
+	assert.Contains(t, w.Body.String(), "no auth token")
 }
 
 func TestJwtMiddleware_InvalidToken(t *testing.T) {
@@ -171,4 +174,73 @@ func TestAuditEventByPath(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestJWTMiddleware_CookieAuth(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockAuth := new(MockAuthorizationService)
+	h := &Handler{services: &service.Service{Authorization: mockAuth}}
+
+	mockAuth.On("ParseToken", "valid-cookie-token").Return(42, "super_admin", nil)
+
+	r := gin.New()
+	r.Use(h.jwtMiddleware())
+	r.GET("/test", func(c *gin.Context) {
+		uid, _ := c.Get(userCtx)
+		role, _ := c.Get(userRoleCtx)
+		c.JSON(http.StatusOK, gin.H{"user_id": uid, "role": role})
+	})
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	req.AddCookie(&http.Cookie{Name: cookieName, Value: "valid-cookie-token"})
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), `"user_id":42`)
+	assert.Contains(t, w.Body.String(), `"role":"super_admin"`)
+	mockAuth.AssertExpectations(t)
+}
+
+func TestJWTMiddleware_NoToken(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockAuth := new(MockAuthorizationService)
+	h := &Handler{services: &service.Service{Authorization: mockAuth}}
+
+	r := gin.New()
+	r.Use(h.jwtMiddleware())
+	r.GET("/test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"ok": true})
+	})
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Contains(t, w.Body.String(), "no auth token")
+}
+
+func TestJWTMiddleware_CookieOverridesBearer(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockAuth := new(MockAuthorizationService)
+	h := &Handler{services: &service.Service{Authorization: mockAuth}}
+
+	// Cookie wins -- ParseToken called with cookie value
+	mockAuth.On("ParseToken", "cookie-tok").Return(1, "user", nil)
+
+	r := gin.New()
+	r.Use(h.jwtMiddleware())
+	r.GET("/test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"ok": true})
+	})
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	req.AddCookie(&http.Cookie{Name: cookieName, Value: "cookie-tok"})
+	req.Header.Set("Authorization", "Bearer header-tok")
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	mockAuth.AssertExpectations(t)
 }

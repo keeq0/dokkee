@@ -8,31 +8,47 @@ import (
 	"github.com/keeq0/dokkee/backend/internal/service"
 )
 
-const userCtx = "user_id"
+const (
+	userCtx     = "user_id"
+	userRoleCtx = "user_role"
+	cookieName  = "dokkee_token"
+)
 
 func (h *Handler) jwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		header := c.GetHeader("Authorization")
-		if header == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "authorization header is empty"})
+		token := extractToken(c)
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no auth token"})
 			return
 		}
 
-		parts := strings.SplitN(header, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization header format"})
-			return
-		}
-
-		userID, _, err := h.services.Authorization.ParseToken(parts[1])
+		userID, role, err := h.services.Authorization.ParseToken(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 
 		c.Set(userCtx, userID)
+		c.Set(userRoleCtx, role)
 		c.Next()
 	}
+}
+
+func extractToken(c *gin.Context) string {
+	if cookie, err := c.Cookie(cookieName); err == nil && cookie != "" {
+		return cookie
+	}
+
+	header := c.GetHeader("Authorization")
+	if header == "" {
+		return ""
+	}
+
+	parts := strings.SplitN(header, " ", 2)
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		return ""
+	}
+	return parts[1]
 }
 
 func (h *Handler) auditMiddleware() gin.HandlerFunc {
@@ -78,4 +94,13 @@ func getUserID(c *gin.Context) (int, bool) {
 	}
 	userID, ok := id.(int)
 	return userID, ok
+}
+
+func getUserRole(c *gin.Context) (string, bool) {
+	r, exists := c.Get(userRoleCtx)
+	if !exists {
+		return "", false
+	}
+	role, ok := r.(string)
+	return role, ok
 }
