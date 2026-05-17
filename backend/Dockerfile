@@ -10,7 +10,8 @@ RUN go env -w GOPROXY=https://proxy.golang.org,direct && \
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api && \
+    CGO_ENABLED=0 GOOS=linux go build -o seed ./cmd/seed
 
 FROM alpine:latest
 
@@ -19,6 +20,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=builder /app/main .
+COPY --from=builder /app/seed .
 
 COPY --from=builder /app/configs ./configs
 
