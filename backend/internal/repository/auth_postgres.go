@@ -33,7 +33,7 @@ func (r *AuthPostgres) CreateUser(user dokkee.User) (int, error) {
 	}
 
 	var phone interface{}
-	if user.Phone != "" {
+	if user.Phone != nil && *user.Phone != "" {
 		phone = user.Phone
 	}
 	_, err = tx.Exec(
@@ -71,7 +71,7 @@ func (r *AuthPostgres) GetUser(username string) (dokkee.User, error) {
 func (r *AuthPostgres) GetProfile(userID int) (dokkee.User, error) {
 	var user dokkee.User
 	query := fmt.Sprintf(`
-        SELECT ac.id, ac.username,
+        SELECT ac.id, ac.username, ac.role,
                up.first_name, up.last_name, up.middle_name, up.email, up.phone,
                ub.balance
         FROM %s ac

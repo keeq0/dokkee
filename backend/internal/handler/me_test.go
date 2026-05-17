@@ -16,7 +16,7 @@ func TestMe_OK(t *testing.T) {
 	mockAuth := new(MockAuthorizationService)
 	h := &Handler{services: &service.Service{Authorization: mockAuth}}
 
-	mockAuth.On("GetUserByID", 42).Return(dokkee.User{Id: 42, Username: "alice", Role: "user"}, nil)
+	mockAuth.On("GetProfile", 42).Return(dokkee.User{Id: 42, Username: "alice", Role: "user"}, nil)
 
 	r := gin.New()
 	r.Use(func(c *gin.Context) {

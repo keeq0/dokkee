@@ -67,13 +67,14 @@ func TestHandler_signUp(t *testing.T) {
 		},
 	}
 
+	phone := "+1234567890"
 	user := dokkee.User{
 		Username:  "alice",
 		Password:  "password",
 		FirstName: "Alice",
 		LastName:  "Smith",
 		Email:     "alice@example.com",
-		Phone:     "+1234567890",
+		Phone:     &phone,
 	}
 
 	returnedUser := dokkee.User{
@@ -82,12 +83,12 @@ func TestHandler_signUp(t *testing.T) {
 		FirstName: "Alice",
 		LastName:  "Smith",
 		Email:     "alice@example.com",
-		Phone:     "+1234567890",
+		Phone:     &phone,
 	}
 
 	mockService.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(1, nil)
 	mockService.On("GenerateToken", user.Username, user.Password).Return("tok123", nil)
-	mockService.On("GetUserByID", 1).Return(returnedUser, nil)
+	mockService.On("GetProfile", 1).Return(returnedUser, nil)
 
 	body, _ := json.Marshal(user)
 	req, _ := http.NewRequest(http.MethodPost, "/auth/sign-up", bytes.NewBuffer(body))
@@ -179,13 +180,14 @@ func TestHandler_signUp_ServiceError(t *testing.T) {
 		},
 	}
 
+	errPhone := "+1234567890"
 	user := dokkee.User{
 		Username:  "testuser",
 		Password:  "password",
 		FirstName: "Test",
 		LastName:  "User",
 		Email:     "test@example.com",
-		Phone:     "+1234567890",
+		Phone:     &errPhone,
 	}
 	mockService.On("CreateUser", mock.Anything).Return(0, errors.New("duplicate username"))
 

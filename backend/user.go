@@ -2,14 +2,14 @@ package dokkee
 
 type User struct {
 	Id         int     `json:"id" db:"id"`
-	Username   string  `json:"username" binding:"required"`
-	Password   string  `json:"password" binding:"required"`
-	FirstName  string  `json:"first_name" binding:"required"`
-	LastName   string  `json:"last_name" binding:"required"`
-	MiddleName string  `json:"middle_name"`
-	Email      string  `json:"email" binding:"required"`
-	Phone      string  `json:"phone" binding:"required"`
-	Balance    float64 `json:"balance"`
+	Username   string  `json:"username" db:"username" binding:"required"`
+	Password   string  `json:"password" db:"password"`
+	FirstName  string  `json:"first_name" db:"first_name" binding:"required"`
+	LastName   string  `json:"last_name" db:"last_name" binding:"required"`
+	MiddleName string  `json:"middle_name" db:"middle_name"`
+	Email      string  `json:"email" db:"email" binding:"required"`
+	Phone      *string `json:"phone" db:"phone"`
+	Balance    float64 `json:"balance" db:"balance"`
 	Role       string  `json:"role" db:"role"`
 }
 

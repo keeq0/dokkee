@@ -47,13 +47,14 @@ func TestAPI_SignUp_Success(t *testing.T) {
 		},
 	}
 
+	phone := "+79991112299"
 	user := dokkee.User{
 		Username:  "apiuser",
 		Password:  "pass123",
 		FirstName: "API",
 		LastName:  "User",
 		Email:     "api@test.com",
-		Phone:     "+79991112299",
+		Phone:     &phone,
 	}
 	returnedUser := dokkee.User{
 		Id:        42,
@@ -61,11 +62,11 @@ func TestAPI_SignUp_Success(t *testing.T) {
 		FirstName: "API",
 		LastName:  "User",
 		Email:     "api@test.com",
-		Phone:     "+79991112299",
+		Phone:     &phone,
 	}
 	mockAuth.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(42, nil)
 	mockAuth.On("GenerateToken", user.Username, user.Password).Return("tok-api", nil)
-	mockAuth.On("GetUserByID", 42).Return(returnedUser, nil)
+	mockAuth.On("GetProfile", 42).Return(returnedUser, nil)
 	mockAudit.On("Log", mock.Anything).Return(nil)
 
 	router := setupRouterWithMocks(handler)

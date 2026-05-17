@@ -49,13 +49,14 @@ func TestAuthService_CreateUser(t *testing.T) {
 	mockRepo := new(MockAuthorization)
 	svc := NewAuthService(mockRepo)
 
+	phone := "+1234567890"
 	user := dokkee.User{
 		Username:  "testuser",
 		Password:  "password",
 		FirstName: "Test",
 		LastName:  "User",
 		Email:     "test@example.com",
-		Phone:     "+1234567890",
+		Phone:     &phone,
 	}
 
 	mockRepo.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(1, nil)

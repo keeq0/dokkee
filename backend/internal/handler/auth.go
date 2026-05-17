@@ -44,7 +44,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.GetUserByID(id)
+	user, err := h.services.GetProfile(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -58,7 +58,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		LastName   string  `json:"last_name"`
 		MiddleName string  `json:"middle_name,omitempty"`
 		Email      string  `json:"email"`
-		Phone      string  `json:"phone"`
+		Phone      *string `json:"phone"`
 		Balance    float64 `json:"balance"`
 		Role       string  `json:"role,omitempty"`
 	}{
@@ -104,7 +104,7 @@ func (h *Handler) me(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.GetUserByID(userID)
+	user, err := h.services.GetProfile(userID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -117,7 +117,7 @@ func (h *Handler) me(c *gin.Context) {
 		LastName   string  `json:"last_name"`
 		MiddleName string  `json:"middle_name,omitempty"`
 		Email      string  `json:"email"`
-		Phone      string  `json:"phone"`
+		Phone      *string `json:"phone"`
 		Balance    float64 `json:"balance"`
 		Role       string  `json:"role,omitempty"`
 	}{
