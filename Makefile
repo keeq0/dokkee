@@ -95,8 +95,9 @@ endif
 # Seed (placeholder для PR-3)
 # ------------------------------------------------------------------
 
-seed: ## Seed суперадмина (реализация в PR-3)
-	@echo "Seed суперадмина реализуется в PR-3"
+seed: ## Seed суперадмина (creates/upserts user with super_admin role)
+	$(COMPOSE) --profile seed up --build --abort-on-container-exit backend-seed
+	$(COMPOSE) --profile seed rm -f backend-seed
 
 # ------------------------------------------------------------------
 # Shells

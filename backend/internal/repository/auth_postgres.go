@@ -32,9 +32,13 @@ func (r *AuthPostgres) CreateUser(user dokkee.User) (int, error) {
 		return 0, fmt.Errorf("failed to create auth: %w", err)
 	}
 
+	var phone interface{}
+	if user.Phone != "" {
+		phone = user.Phone
+	}
 	_, err = tx.Exec(
 		fmt.Sprintf(`INSERT INTO %s (user_id, first_name, last_name, middle_name, email, phone) VALUES ($1, $2, $3, $4, $5, $6)`, userProfilesTable),
-		userID, user.FirstName, user.LastName, user.MiddleName, user.Email, user.Phone,
+		userID, user.FirstName, user.LastName, user.MiddleName, user.Email, phone,
 	)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create profile: %w", err)

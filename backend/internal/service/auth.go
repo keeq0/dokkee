@@ -111,9 +111,12 @@ func (s *AuthService) UpsertSuperAdmin(username, password string) error {
 		return fmt.Errorf("failed to hash password: %w", hashErr)
 	}
 	user := dokkee.User{
-		Username: username,
-		Password: hash,
-		Role:     "super_admin",
+		Username:  username,
+		Password:  hash,
+		Role:      "super_admin",
+		FirstName: username,
+		LastName:  "Admin",
+		Email:     username + "@system.local",
 	}
 	id, createErr := s.repo.CreateUser(user)
 	if createErr != nil {
