@@ -96,3 +96,44 @@ func (h *Handler) signIn(c *gin.Context) {
 	setAuthCookie(c, token)
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
+
+func (h *Handler) me(c *gin.Context) {
+	userID, ok := getUserID(c)
+	if !ok {
+		newErrorResponse(c, http.StatusUnauthorized, "user not in context")
+		return
+	}
+
+	user, err := h.services.GetUserByID(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": struct {
+		ID         int     `json:"id"`
+		Username   string  `json:"username"`
+		FirstName  string  `json:"first_name"`
+		LastName   string  `json:"last_name"`
+		MiddleName string  `json:"middle_name,omitempty"`
+		Email      string  `json:"email"`
+		Phone      string  `json:"phone"`
+		Balance    float64 `json:"balance"`
+		Role       string  `json:"role,omitempty"`
+	}{
+		ID:         user.Id,
+		Username:   user.Username,
+		FirstName:  user.FirstName,
+		LastName:   user.LastName,
+		MiddleName: user.MiddleName,
+		Email:      user.Email,
+		Phone:      user.Phone,
+		Balance:    user.Balance,
+		Role:       user.Role,
+	}})
+}
+
+func (h *Handler) logout(c *gin.Context) {
+	clearAuthCookie(c)
+	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
