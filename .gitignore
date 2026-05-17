@@ -13,6 +13,8 @@ Thumbs.db
 .superpowers/
 .playwright-mcp/
 docs/superpowers/
+CLAUDE.md
+CLAUDE.local.md
 
 # Build artifacts
 node_modules/
@@ -37,5 +39,6 @@ test-screenshots/
 .env.*.local
 
 # Dumps
+*.sql
 *.sql.gz
 *.dump
