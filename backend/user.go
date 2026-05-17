@@ -10,6 +10,7 @@ type User struct {
 	Email      string  `json:"email" binding:"required"`
 	Phone      string  `json:"phone" binding:"required"`
 	Balance    float64 `json:"balance"`
+	Role       string  `json:"role" db:"role"`
 }
 
 type UpdateProfileInput struct {
