@@ -40,7 +40,7 @@ async function mockDeepseek(page) {
 
 test.describe('AnalysisResult: новые фичи', () => {
   test('начальное состояние: AnalysisResult виден, кнопки disabled, статус-плейсхолдер', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/app')
     await expect(page.locator('.analysis')).toBeVisible()
     await expect(page.locator('.progress__status')).toHaveText('Ожидаю…')
     await expect(page.locator('.bar__percentage')).toHaveText('0%')
@@ -52,7 +52,7 @@ test.describe('AnalysisResult: новые фичи', () => {
   })
 
   test('font-size popover открывается, изменение применяет --preview-font-scale', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/app')
     await expect(page.locator('.font-size-popover')).toHaveCount(0)
     await page.locator('.analysis__font-size-selector').click()
     await expect(page.locator('.font-size-popover')).toBeVisible()
@@ -69,7 +69,7 @@ test.describe('AnalysisResult: новые фичи', () => {
 
   test('после анализа: progress=100, статус "Анализ завершён", кнопки активны', async ({ page }) => {
     await mockDeepseek(page)
-    await page.goto('/')
+    await page.goto('/app')
     await page
       .locator('.drop-menu__zone input[type="file"]')
       .setInputFiles('./tests/e2e/fixtures/sample.pdf')
@@ -87,7 +87,7 @@ test.describe('AnalysisResult: новые фичи', () => {
 
   test('risk-panel: после анализа отображает группы рисков по уровням', async ({ page }) => {
     await mockDeepseek(page)
-    await page.goto('/')
+    await page.goto('/app')
     await page
       .locator('.drop-menu__zone input[type="file"]')
       .setInputFiles('./tests/e2e/fixtures/sample.pdf')
@@ -103,7 +103,7 @@ test.describe('AnalysisResult: новые фичи', () => {
 
   test('кнопка "Скачать отчёт" триггерит скачивание PDF', async ({ page }) => {
     await mockDeepseek(page)
-    await page.goto('/')
+    await page.goto('/app')
     await page
       .locator('.drop-menu__zone input[type="file"]')
       .setInputFiles('./tests/e2e/fixtures/sample.pdf')

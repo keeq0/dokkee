@@ -1,0 +1,18 @@
+:root {
+  /* Color palette */
+  --color-primary: #6C67FD;
+  --color-text: #000000;
+  --color-text-muted: #444444;
+  --color-bg: transparent;
+
+  /* Typography */
+  --font-family-base: 'Montserrat', sans-serif;
+  --font-size-h1: 28px;
+
+  /* Spacing */
+  --space-section-y: 50px;
+  --space-section-y-mobile: 30px;
+
+  /* Breakpoints (для справки; используем в media queries напрямую) */
+  --bp-mobile: 576px;
+}

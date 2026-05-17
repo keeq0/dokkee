@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Хранилище документов', () => {
   test('переключение между плиткой и списком', async ({ page }) => {
-    await page.goto('/documents')
+    await page.goto('/app/documents')
     
     const tileButton = page.locator('.view__button').first()
     const listButton = page.locator('.view__button').last()
@@ -15,7 +15,7 @@ test.describe('Хранилище документов', () => {
   })
 
   test('сортировка документов по имени', async ({ page }) => {
-    await page.goto('/documents')
+    await page.goto('/app/documents')
     // Открываем фильтр в хранилище (первый .storage__filter на странице)
     await page.locator('.storage__filter').first().click()
     // Выбираем опцию "названию (А-Я)" (используем first, так как в NotesFilter тоже есть такая опция)

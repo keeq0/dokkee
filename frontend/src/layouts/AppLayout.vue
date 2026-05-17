@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-layout">
     <ServiceHeader />
     <ServiceLayout />
     <ServiceFooter />
@@ -7,15 +7,16 @@
 </template>
 
 <script>
-import ServiceFooter from '@/components/ServiceFooter.vue';
 import ServiceHeader from '@/components/ServiceHeader.vue'
 import ServiceLayout from '@/components/ServiceLayout.vue'
+import ServiceFooter from '@/components/ServiceFooter.vue'
 
 export default {
-  name: 'ServicePage',
-  components: { 
+  name: 'AppLayout',
+  components: {
     ServiceHeader,
     ServiceLayout,
-    ServiceFooter }
+    ServiceFooter
+  }
 }
 </script>
