@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Загрузка документов', () => {
   test('пользователь может загрузить файл через DropMenu', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/app')
     const fileInput = page.locator('.drop-menu__zone input[type="file"]')
     await fileInput.setInputFiles('./tests/e2e/fixtures/sample.pdf')
     await expect(page.locator('.upload-documents__file-name')).toContainText('sample.pdf')
@@ -26,7 +26,7 @@ test.describe('Загрузка документов', () => {
       })
     })
 
-    await page.goto('/')
+    await page.goto('/app')
     const fileInput = page.locator('.drop-menu__zone input[type="file"]')
     await fileInput.setInputFiles('./tests/e2e/fixtures/sample.pdf')
     await page.locator('.agreement__checkbox').check()
@@ -45,7 +45,7 @@ test.describe('Загрузка документов', () => {
   })
 
   test('"Отмена" в модалке закрывает её без запуска анализа', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/app')
     await page
       .locator('.drop-menu__zone input[type="file"]')
       .setInputFiles('./tests/e2e/fixtures/sample.pdf')

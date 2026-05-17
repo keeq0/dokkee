@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Сортировка документов', () => {
   test('сортировка по названию', async ({ page }) => {
-    await page.goto('/documents')
+    await page.goto('/app/documents')
     // Кликаем на фильтр в хранилище (первый .storage__filter на странице)
     const filter = page.locator('.storage__filter').first()
     await filter.click()
