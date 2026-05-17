@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	dokkee "github.com/keeq0/dokkee/backend"
 	"github.com/keeq0/dokkee/backend/internal/service"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMe_OK(t *testing.T) {
