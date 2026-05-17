@@ -1,0 +1,41 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude / superpowers (локально)
+.claude/
+.superpowers/
+.playwright-mcp/
+docs/superpowers/
+
+# Build artifacts
+node_modules/
+dist/
+build/
+*.log
+
+# Coverage
+coverage.out
+coverage/
+*.lcov
+.nyc_output/
+
+# Test outputs
+playwright-report/
+test-results/
+test-screenshots/
+
+# Env (секреты)
+.env
+.env.local
+.env.*.local
+
+# Dumps
+*.sql.gz
+*.dump
