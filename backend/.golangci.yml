@@ -1,0 +1,22 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - govet
+    - errcheck
+    - staticcheck   # <-- gosimple и stylecheck теперь находятся внутри него
+    - unused
+    - ineffassign
+    - misspell
+
+formatters:
+  enable:
+    - gofmt
+
+run:
+  timeout: 5m
+  go: '1.24'
+
+issues:
+  uniq-by-line: true
