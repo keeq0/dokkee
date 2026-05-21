@@ -10,6 +10,7 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:update-har": "E2E_UPDATE_HAR=1 playwright test tests/e2e/auth.spec.js",
     "test:e2e:watch": "chokidar 'src/**/*.{js,vue}' 'tests/e2e/**/*.{js,spec.js}' -d 1500 --initial -c 'playwright test'",
     "lint:watch": "chokidar 'src/**/*.{js,vue}' 'tests/**/*.{js,spec.js}' -d 300 --initial -c 'npm run lint || true'"
   },
