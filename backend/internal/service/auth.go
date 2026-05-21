@@ -19,7 +19,8 @@ const (
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"user_id"`
+	UserId int    `json:"user_id"`
+	Role   string `json:"role"`
 }
 
 type AuthService struct {
@@ -55,12 +56,13 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 			IssuedAt:  time.Now().Unix(),
 		},
 		UserId: user.Id,
+		Role:   user.Role,
 	})
 
 	return token.SignedString([]byte(os.Getenv("sign_key")))
 }
 
-func (s *AuthService) ParseToken(accessToken string) (int, error) {
+func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
@@ -68,15 +70,20 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 		return []byte(os.Getenv("sign_key")), nil
 	})
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, errors.New("invalid token claims")
+		return 0, "", errors.New("invalid token claims")
 	}
 
-	return claims.UserId, nil
+	role := claims.Role
+	if role == "" {
+		role = "user"
+	}
+
+	return claims.UserId, role, nil
 }
 
 func (s *AuthService) GetProfile(userID int) (dokkee.User, error) {
@@ -85,6 +92,37 @@ func (s *AuthService) GetProfile(userID int) (dokkee.User, error) {
 
 func (s *AuthService) UpdateProfile(userID int, input dokkee.UpdateProfileInput) error {
 	return s.repo.UpdateProfile(userID, input)
+}
+
+func (s *AuthService) GetUserByID(userID int) (dokkee.User, error) {
+	return s.repo.GetUserByID(userID)
+}
+
+func (s *AuthService) UpsertSuperAdmin(username, password string) error {
+	existing, err := s.repo.GetUser(username)
+	if err == nil {
+		if existing.Role == "super_admin" {
+			return nil
+		}
+		return s.repo.UpdateRole(existing.Id, "super_admin")
+	}
+	hash, hashErr := generatePasswordHash(password)
+	if hashErr != nil {
+		return fmt.Errorf("failed to hash password: %w", hashErr)
+	}
+	user := dokkee.User{
+		Username:  username,
+		Password:  hash,
+		Role:      "super_admin",
+		FirstName: username,
+		LastName:  "Admin",
+		Email:     username + "@system.local",
+	}
+	id, createErr := s.repo.CreateUser(user)
+	if createErr != nil {
+		return fmt.Errorf("failed to create super admin: %w", createErr)
+	}
+	return s.repo.UpdateRole(id, "super_admin")
 }
 
 func generatePasswordHash(password string) (string, error) {

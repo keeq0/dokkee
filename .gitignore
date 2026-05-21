@@ -39,7 +39,6 @@ test-screenshots/
 .env.local
 .env.*.local
 
-# Dumps
-*.sql
+# Dumps (bare *.sql попадает в backend/migrations/ — исключаем по подсказке)
 *.sql.gz
 *.dump

@@ -93,6 +93,23 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  backend-seed:
+    build:
+      context: ./backend
+    container_name: dokkee-backend-seed
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    command: ["./seed"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-migrate:
+        condition: service_completed_successfully
+    profiles: ["seed"]
+    restart: "no"
+
   frontend:
     build:
       context: ./frontend

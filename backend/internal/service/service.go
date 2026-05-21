@@ -10,9 +10,11 @@ import (
 type Authorization interface {
 	CreateUser(user dokkee.User) (int, error)
 	GenerateToken(username, password string) (string, error)
-	ParseToken(token string) (int, error)
+	ParseToken(token string) (int, string, error)
+	GetUserByID(userID int) (dokkee.User, error)
 	GetProfile(userID int) (dokkee.User, error)
 	UpdateProfile(userID int, input dokkee.UpdateProfileInput) error
+	UpsertSuperAdmin(username, password string) error
 }
 
 type Documents interface {

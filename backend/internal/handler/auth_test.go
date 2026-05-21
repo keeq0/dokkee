@@ -13,6 +13,7 @@ import (
 	"github.com/keeq0/dokkee/backend/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type MockAuthorizationService struct {
@@ -29,9 +30,14 @@ func (m *MockAuthorizationService) GenerateToken(username, password string) (str
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockAuthorizationService) ParseToken(token string) (int, error) {
+func (m *MockAuthorizationService) ParseToken(token string) (int, string, error) {
 	args := m.Called(token)
-	return args.Int(0), args.Error(1)
+	return args.Int(0), args.String(1), args.Error(2)
+}
+
+func (m *MockAuthorizationService) GetUserByID(userID int) (dokkee.User, error) {
+	args := m.Called(userID)
+	return args.Get(0).(dokkee.User), args.Error(1)
 }
 
 func (m *MockAuthorizationService) GetProfile(userID int) (dokkee.User, error) {
@@ -41,6 +47,11 @@ func (m *MockAuthorizationService) GetProfile(userID int) (dokkee.User, error) {
 
 func (m *MockAuthorizationService) UpdateProfile(userID int, input dokkee.UpdateProfileInput) error {
 	args := m.Called(userID, input)
+	return args.Error(0)
+}
+
+func (m *MockAuthorizationService) UpsertSuperAdmin(username, password string) error {
+	args := m.Called(username, password)
 	return args.Error(0)
 }
 
@@ -56,16 +67,28 @@ func TestHandler_signUp(t *testing.T) {
 		},
 	}
 
+	phone := "+1234567890"
 	user := dokkee.User{
-		Username:  "testuser",
+		Username:  "alice",
 		Password:  "password",
-		FirstName: "Test",
-		LastName:  "User",
-		Email:     "test@example.com",
-		Phone:     "+1234567890",
+		FirstName: "Alice",
+		LastName:  "Smith",
+		Email:     "alice@example.com",
+		Phone:     &phone,
+	}
+
+	returnedUser := dokkee.User{
+		Id:        1,
+		Username:  "alice",
+		FirstName: "Alice",
+		LastName:  "Smith",
+		Email:     "alice@example.com",
+		Phone:     &phone,
 	}
 
 	mockService.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(1, nil)
+	mockService.On("GenerateToken", user.Username, user.Password).Return("tok123", nil)
+	mockService.On("GetProfile", 1).Return(returnedUser, nil)
 
 	body, _ := json.Marshal(user)
 	req, _ := http.NewRequest(http.MethodPost, "/auth/sign-up", bytes.NewBuffer(body))
@@ -77,9 +100,17 @@ func TestHandler_signUp(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, float64(1), response["id"])
+	assert.Contains(t, w.Body.String(), `"user":`)
+	assert.Contains(t, w.Body.String(), `"username":"alice"`)
+	assert.NotContains(t, w.Body.String(), `"password"`)
+
+	cookies := w.Result().Cookies()
+	require.Len(t, cookies, 1)
+	assert.Equal(t, cookieName, cookies[0].Name)
+	assert.True(t, cookies[0].HttpOnly)
+	assert.Equal(t, http.SameSiteLaxMode, cookies[0].SameSite)
+	assert.NotEmpty(t, cookies[0].Value)
+
 	mockService.AssertExpectations(t)
 }
 
@@ -110,9 +141,15 @@ func TestHandler_signIn(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, "token123", response["token"])
+	assert.Contains(t, w.Body.String(), `"ok":true`)
+
+	cookies := w.Result().Cookies()
+	require.Len(t, cookies, 1)
+	assert.Equal(t, cookieName, cookies[0].Name)
+	assert.True(t, cookies[0].HttpOnly)
+	assert.Equal(t, http.SameSiteLaxMode, cookies[0].SameSite)
+	assert.NotEmpty(t, cookies[0].Value)
+
 	mockService.AssertExpectations(t)
 }
 
@@ -143,13 +180,14 @@ func TestHandler_signUp_ServiceError(t *testing.T) {
 		},
 	}
 
+	errPhone := "+1234567890"
 	user := dokkee.User{
 		Username:  "testuser",
 		Password:  "password",
 		FirstName: "Test",
 		LastName:  "User",
 		Email:     "test@example.com",
-		Phone:     "+1234567890",
+		Phone:     &errPhone,
 	}
 	mockService.On("CreateUser", mock.Anything).Return(0, errors.New("duplicate username"))
 

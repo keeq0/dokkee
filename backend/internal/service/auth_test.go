@@ -33,19 +33,30 @@ func (m *MockAuthorization) UpdateProfile(userID int, input dokkee.UpdateProfile
 	return args.Error(0)
 }
 
+func (m *MockAuthorization) GetUserByID(userID int) (dokkee.User, error) {
+	args := m.Called(userID)
+	return args.Get(0).(dokkee.User), args.Error(1)
+}
+
+func (m *MockAuthorization) UpdateRole(userID int, role string) error {
+	args := m.Called(userID, role)
+	return args.Error(0)
+}
+
 // --- Existing tests ---
 
 func TestAuthService_CreateUser(t *testing.T) {
 	mockRepo := new(MockAuthorization)
 	svc := NewAuthService(mockRepo)
 
+	phone := "+1234567890"
 	user := dokkee.User{
 		Username:  "testuser",
 		Password:  "password",
 		FirstName: "Test",
 		LastName:  "User",
 		Email:     "test@example.com",
-		Phone:     "+1234567890",
+		Phone:     &phone,
 	}
 
 	mockRepo.On("CreateUser", mock.AnythingOfType("dokkee.User")).Return(1, nil)
@@ -94,7 +105,7 @@ func TestAuthService_ParseToken(t *testing.T) {
 	token, err := svc.GenerateToken(username, password)
 	assert.NoError(t, err)
 
-	userID, err := svc.ParseToken(token)
+	userID, _, err := svc.ParseToken(token)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, userID)
 }
@@ -190,6 +201,6 @@ func TestAuthService_GenerateToken_InvalidPassword(t *testing.T) {
 func TestAuthService_ParseToken_Invalid(t *testing.T) {
 	svc := NewAuthService(nil)
 
-	_, err := svc.ParseToken("invalid.token.string")
+	_, _, err := svc.ParseToken("invalid.token.string")
 	assert.Error(t, err)
 }
