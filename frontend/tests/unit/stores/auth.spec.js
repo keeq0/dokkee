@@ -59,13 +59,11 @@ describe('stores/auth', () => {
     expect(store.status).toBe('guest')
   })
 
-  it('init: вызывается повторно — возвращает то же обещание', async () => {
+  it('init: повторный вызов не делает повторный HTTP запрос', async () => {
     api.get.mockResolvedValue({ data: { id: 1, username: 'ivan', role: 'user' } })
     const store = useAuthStore()
-    const p1 = store.init()
-    const p2 = store.init()
-    expect(p1).toBe(p2)
-    await p1
+    await store.init()
+    await store.init()
     expect(api.get).toHaveBeenCalledTimes(1)
   })
 

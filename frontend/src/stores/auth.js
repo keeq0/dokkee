@@ -1,21 +1,13 @@
-import { defineStore, getActivePinia } from 'pinia'
+import { defineStore } from 'pinia'
 import { api } from '@/services/api'
 
 const AUTH_BASE = ''
 
-/**
- * Map<pinaInstance, Promise | null>
- * Хранит initPromise отдельно для каждого экземпляра pinia.
- * Это позволяет корректно сбрасывать промис между тестами,
- * где каждый тест создаёт новый экземпляр через createPinia().
- * @type {WeakMap<object, Promise<void> | null>}
- */
-const _initPromises = new WeakMap()
-
-const _useAuthStoreBase = defineStore('auth', {
+export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    status: 'guest'
+    status: 'guest',
+    _initPromise: null
   }),
 
   getters: {
@@ -35,6 +27,13 @@ const _useAuthStoreBase = defineStore('auth', {
         this.user = null
         this.status = 'guest'
       }
+    },
+
+    init() {
+      if (!this._initPromise) {
+        this._initPromise = this.fetchMe()
+      }
+      return this._initPromise
     },
 
     async login({ username, password }) {
@@ -59,37 +58,7 @@ const _useAuthStoreBase = defineStore('auth', {
     reset() {
       this.user = null
       this.status = 'guest'
-      const pinia = getActivePinia()
-      if (pinia) {
-        _initPromises.set(pinia, null)
-      }
+      this._initPromise = null
     }
   }
 })
-
-/**
- * Auth store с методом init, возвращающим стабильный Promise-идентификатор.
- * init() вынесен за пределы Pinia action wrapping, чтобы гарантировать
- * что повторный вызов возвращает тот же объект Promise (Pinia оборачивает
- * Promise из action в новый .then().catch() при каждом вызове).
- */
-export function useAuthStore() {
-  const store = _useAuthStoreBase()
-  const pinia = getActivePinia()
-
-  if (!store.init) {
-    store.init = function init() {
-      const current = pinia ? _initPromises.get(pinia) : null
-      if (!current) {
-        const p = store.fetchMe()
-        if (pinia) {
-          _initPromises.set(pinia, p)
-        }
-        return p
-      }
-      return current
-    }
-  }
-
-  return store
-}
