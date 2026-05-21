@@ -15,6 +15,7 @@ describe('stores/auth', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    useAuthStore().reset()
   })
 
   it('инициализируется как гость', () => {
@@ -64,6 +65,13 @@ describe('stores/auth', () => {
     const store = useAuthStore()
     await store.init()
     await store.init()
+    expect(api.get).toHaveBeenCalledTimes(1)
+  })
+
+  it('init: конкурентные вызовы тоже делают один HTTP запрос', async () => {
+    api.get.mockResolvedValue({ data: { id: 1, username: 'ivan', role: 'user' } })
+    const store = useAuthStore()
+    await Promise.all([store.init(), store.init()])
     expect(api.get).toHaveBeenCalledTimes(1)
   })
 

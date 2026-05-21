@@ -1,13 +1,12 @@
 import { defineStore } from 'pinia'
 import { api } from '@/services/api'
 
-const AUTH_BASE = ''
+let initPromise = null
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    status: 'guest',
-    _initPromise: null
+    status: 'guest'
   }),
 
   getters: {
@@ -30,27 +29,27 @@ export const useAuthStore = defineStore('auth', {
     },
 
     init() {
-      if (!this._initPromise) {
-        this._initPromise = this.fetchMe()
+      if (!initPromise) {
+        initPromise = this.fetchMe()
       }
-      return this._initPromise
+      return initPromise
     },
 
     async login({ username, password }) {
-      await api.post('/auth/sign-in', { username, password }, { baseURL: AUTH_BASE })
+      await api.post('/auth/sign-in', { username, password }, { baseURL: '' })
       await this.fetchMe()
     },
 
     async register({ username, password }) {
-      await api.post('/auth/sign-up', { username, password }, { baseURL: AUTH_BASE })
+      await api.post('/auth/sign-up', { username, password }, { baseURL: '' })
       await this.fetchMe()
     },
 
     async logout() {
       try {
-        await api.post('/auth/logout', null, { baseURL: AUTH_BASE })
+        await api.post('/auth/logout', null, { baseURL: '' })
       } catch (e) {
-        // даже при сетевой ошибке гасим клиентский state
+        // intentionally ignored: cookie may already be invalid
       }
       this.reset()
     },
@@ -58,7 +57,7 @@ export const useAuthStore = defineStore('auth', {
     reset() {
       this.user = null
       this.status = 'guest'
-      this._initPromise = null
+      initPromise = null
     }
   }
 })
