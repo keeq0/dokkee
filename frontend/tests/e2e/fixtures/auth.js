@@ -7,7 +7,7 @@ const updateHar = process.env.E2E_UPDATE_HAR === '1'
 export const test = base.extend({
   apiMock: [async ({ page }, use, testInfo) => {
     const safeTitle = testInfo.title.replace(/[^a-zA-Z0-9_-]/g, '_')
-    const harFile = path.join(harDir, `auth-${safeTitle}.har`)
+    const harFile = `${harDir}/auth-${safeTitle}.har`
     await page.routeFromHAR(harFile, {
       update: updateHar,
       url: /\/(api|auth)\//
