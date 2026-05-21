@@ -2,13 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('axios', () => {
   const interceptorsResponseUse = vi.fn()
-  const post = vi.fn()
-  const get = vi.fn()
   const instance = {
     defaults: { baseURL: '', withCredentials: false },
-    interceptors: { response: { use: interceptorsResponseUse } },
-    post,
-    get
+    interceptors: { response: { use: interceptorsResponseUse } }
   }
   return {
     default: {
@@ -24,13 +20,17 @@ import axios from 'axios'
 import { api, setupApiInterceptors } from '@/services/api'
 
 describe('services/api', () => {
-  it('создаёт axios instance с baseURL=/api и withCredentials=true', () => {
-    expect(api.defaults.baseURL).toBe('/api')
-    expect(api.defaults.withCredentials).toBe(true)
+  beforeEach(() => {
+    api.interceptors.response.use.mockClear()
   })
 
-  beforeEach(() => {
-    vi.clearAllMocks()
+  it('создаёт axios instance с baseURL=/api и withCredentials=true', () => {
+    expect(axios.create).toHaveBeenCalledWith({
+      baseURL: '/api',
+      withCredentials: true
+    })
+    expect(api.defaults.baseURL).toBe('/api')
+    expect(api.defaults.withCredentials).toBe(true)
   })
 
   it('setupApiInterceptors регистрирует response-interceptor', () => {
@@ -52,7 +52,9 @@ describe('services/api', () => {
     const onUnauthorized = vi.fn()
     setupApiInterceptors({ onUnauthorized })
     const [, errorHandler] = api.interceptors.response.use.mock.calls[0]
-    await expect(errorHandler({ response: { status: 500 } })).rejects.toBeTruthy()
+    await expect(errorHandler({ response: { status: 500 } })).rejects.toEqual({
+      response: { status: 500 }
+    })
     expect(onUnauthorized).not.toHaveBeenCalled()
   })
 
