@@ -65,7 +65,8 @@ async function onSubmit() {
   submitting.value = true
   try {
     await auth.login({ username: username.value, password: password.value })
-    const next = typeof route.query.next === 'string' ? route.query.next : '/app'
+    const raw = route.query.next
+    const next = typeof raw === 'string' && raw.startsWith('/') && !raw.startsWith('//') ? raw : '/app'
     router.push(next)
   } catch (e) {
     error.value = e?.response?.data?.message || 'Не удалось войти'

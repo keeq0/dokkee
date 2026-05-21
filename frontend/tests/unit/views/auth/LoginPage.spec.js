@@ -68,6 +68,30 @@ describe('LoginPage', () => {
     expect(push).toHaveBeenCalledWith('/app/account')
   })
 
+  it('игнорирует внешний ?next и редиректит на /app', async () => {
+    route.query = { next: 'https://evil.com/phish' }
+    const w = makeWrapper()
+    const auth = useAuthStore()
+    auth.login = vi.fn().mockResolvedValue()
+    await w.find('[data-testid="login-username"]').setValue('ivan')
+    await w.find('[data-testid="login-password"]').setValue('secret')
+    await w.find('form').trigger('submit.prevent')
+    await new Promise((r) => setTimeout(r, 0))
+    expect(push).toHaveBeenCalledWith('/app')
+  })
+
+  it('игнорирует protocol-relative ?next и редиректит на /app', async () => {
+    route.query = { next: '//evil.com/phish' }
+    const w = makeWrapper()
+    const auth = useAuthStore()
+    auth.login = vi.fn().mockResolvedValue()
+    await w.find('[data-testid="login-username"]').setValue('ivan')
+    await w.find('[data-testid="login-password"]').setValue('secret')
+    await w.find('form').trigger('submit.prevent')
+    await new Promise((r) => setTimeout(r, 0))
+    expect(push).toHaveBeenCalledWith('/app')
+  })
+
   it('при ошибке backend показывает текст ошибки', async () => {
     const w = makeWrapper()
     const auth = useAuthStore()

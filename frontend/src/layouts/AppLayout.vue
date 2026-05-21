@@ -6,7 +6,7 @@
       </span>
       <router-link
         v-if="auth.isSuperAdmin"
-        :to="{ name: 'AdminUsers' }"
+        to="/admin"
         class="user-bar__link"
         data-testid="user-bar-admin-link"
       >
